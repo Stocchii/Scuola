@@ -1,4 +1,4 @@
 # Scuola
-Materiale scolastico
-ciano ti amo
-odio gli slavi, trombiamo jenny
+Materiale scolastico <br>
+ciano ti amo <br>
+odio gli slavi, trombiamo jenny <br>
