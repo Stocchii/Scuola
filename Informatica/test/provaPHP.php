@@ -1,8 +1,8 @@
 <?php
-echo "<h1>Informazioni sul browser</h1>";
+echo "<h1>Roma Lazio 1-0</h1>";
 $user_agent = $_SERVER['HTTP_USER_AGENT'];
 echo "<p><strong>User agent:</strong>  " . $user_agent . "</p>";
-echo "<h2>Dettagliu aggiuntivi (se disponibili)</h2>";
+echo "<h2>Porcamadonna</h2>";
 
 if (ini_get('browscap')){
     $browser = get_browser(null, true);
