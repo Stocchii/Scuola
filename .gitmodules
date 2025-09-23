@@ -1,0 +1,3 @@
+[submodule "Informatica/Informatica/CommunityWeb"]
+	path = Informatica/Informatica/CommunityWeb
+	url = https://github.com/PietroStoc/CommunityWeb.git
