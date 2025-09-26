@@ -1,0 +1,6 @@
+[submodule "Informatica/Informatica/CommunityWeb"]
+	path = Informatica/Informatica/CommunityWeb
+	url = https://github.com/PietroStoc/CommunityWeb.git
+[submodule "TPSIT/TPSIT/STOCCHIERO_chi_vuol_essere_maturato"]
+	path = TPSIT/TPSIT/STOCCHIERO_chi_vuol_essere_maturato
+	url = https://github.com/PietroStoc/STOCCHIERO_chi_vuo_essere_maturato.git

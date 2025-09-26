@@ -1,0 +1,494 @@
+﻿Il livello delle applicazioni - HTTP
+Introduzione
+Fino al 1990 la rete Internet era utilizzata principalmente da ricercatori, accademici e studenti universitari per accedere a host remoti, per trasferire file da host locali a host remoti e viceversa, per ricevere e inviare notizie e per ricevere e inviare posta elettronica. Sebbene queste applicazioni fossero (e continuano ad essere) estremamente utili, Internet era sostanzialmente sconosciuta al di fuori delle comunità accademiche e di ricerca. Poi, dal 1990,  è arrivata sulla scena una nuova importante applicazione, il World Wide Web. Il Web è stata la prima applicazione Internet che ha catturato l'interesse del pubblico in generale. Il modo in cui le persone interagiscono dentro e fuori dei loro ambienti di lavoro è cambiato e continua a cambiare radicalmente..
+  
+
+
+
+Il Web funziona su richiesta, in quanto gli utenti ricevono quello che vogliono, quando lo vogliono. Questo è diverso dalle trasmissioni radio e televisive tradizionali, che costringono gli utenti ad aspettare quando il fornitore rende disponibili i contenuti. Sul Web ogni persona può pubblicare articoli a costi estremamente bassi. I collegamenti ipertestuali e i motori di ricerca aiutano a navigare attraverso i siti web. La grafica produce effetti molto efficaci. Ci sono molte tecniche per interagire con le pagine web. Sul web si appoggiano le più diffuse applicazioni nate dopo il 2003, tra cui YouTube, Gmail e Facebook
+Panoramica di HTTP
+L'HyperText Transfer Protocol (HTTP) è il protocollo del Web e delle web application. È definito negli RFC 1945 e RFC 2616 (e successivi). HTTP è utilizzato da due programmi, uno client e uno server in esecuzione su sistemi terminali diversi. Essi dialogano tra loro scambiandosi messaggi HTTP. Questi messaggi consentono di trasportare risorse tra il client ed il server ed in particolare le pagine web dal server al client.
+Lato client il messaggio HTTP viene passato al protocollo TCP del livello di trasporto, il quale aggiunge la sua intestazione con il numero di porta del processo client ed il numero di porta del processo server destinatario (80 porta standard per HTTP).
+poiché i processi client e server sono normalmente in esecuzione su macchine diverse, è necessario non solo il numero di porta per identificare il processo, ma serve anche l’IP per raggiungere la macchina. La coppia IP:porta prende il nome di socket.
+Non solo i messaggi HTTP hanno una struttura standard, ma è definito anche il modo in cui il client e il server si scambiano i messaggi.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Flusso di comunicazione
+  Il funzionamento del protocollo HTTP si basa sull’interazione tra due componenti principali: il client (solitamente un browser Web come Chrome o Firefox) e il server Web (Apache, Nginx, IIS, ecc.).
+Il server HTTP rimane in ascolto sulla porta 80 (o 443 in caso di HTTPS), pronto a ricevere richieste dai client. Quando un utente, tramite browser, decide di visitare una pagina Web, viene avviata una serie di passaggi ben definiti.
+Per prima cosa, il browser deve aprire una connessione TCP con il server. Questa connessione rappresenta un canale logico che mette in comunicazione il socket del client con quello del server. Una volta stabilito il collegamento, il client invia al server un messaggio di richiesta HTTP, specificando la risorsa desiderata tramite un URI (Uniform Resource Identifier)o URL nel caso in cui la risorsa sia una pagina web.
+Il server, ricevuta la richiesta, interpreta l’URI, recupera la risorsa corrispondente (per esempio una pagina HTML), e la invia nuovamente al client sotto forma di risposta HTTP. Dopo lo scambio, la connessione TCP può essere chiusa, anche se nelle versioni moderne del protocollo (come HTTP/1.1 o HTTP/2) spesso rimane aperta per ottimizzare il caricamento di più risorse.
+Va ricordato che una pagina Web non è mai un unico file, ma un insieme di oggetti. In genere troviamo:
+* un file HTML di base,
+* immagini (JPEG, PNG, GIF),
+* script (JavaScript),
+* video o altri contenuti multimediali.
+
+Il file HTML non contiene direttamente tutti questi elementi, ma piuttosto dei riferimenti (URL) agli oggetti esterni che il browser deve richiedere singolarmente.
+Ad esempio, un URL come:
+http://www.scuola.edu/dipartimento/figura.gif
+è formato da due parti: l’hostname del server (www.scuola.edu) e il percorso dell’oggetto sul server (/dipartimento/figura.gif).
+Dal punto di vista del protocollo, HTTP definisce il formato del messaggio e come deve avvenire lo scambio tra client e server:
+   * il client invia richieste HTTP per ogni oggetto della pagina,
+
+   * il server risponde con i corrispondenti messaggi di risposta contenenti gli oggetti richiesti.
+
+Poiché HTTP si appoggia su TCP, può contare su un trasferimento affidabile: ogni messaggio inviato arriverà a destinazione integro, senza che HTTP debba preoccuparsi di perdite o riordinamenti, compiti che spettano invece al livello di trasporto.
+Infine, va sottolineato che HTTP non si occupa della visualizzazione delle pagine: questo dipende dal browser. Di conseguenza, due browser diversi possono mostrare la stessa pagina Web con leggere differenze di interpretazione, pur basandosi sulla medesima comunicazione HTTP.
+
+
+Connessioni Non-Persistenti e Persistenti
+In molte applicazioni Internet, il client e il server comunicano per un periodo di tempo prolungato: il client invia una serie di richieste e il server risponde a ciascuna di esse.
+Queste richieste possono avvenire consecutivamente, a intervalli regolari, in modo periodico o anche in maniera intermittente.
+Quando l’interazione si svolge tramite TCP, è possibile scegliere se:
+      * ogni coppia richiesta/risposta debba viaggiare su una nuova connessione TCP (connessioni non-persistenti), oppure
+
+      * tutte le richieste e risposte possano essere trasmesse attraverso la stessa connessione TCP (connessioni persistenti).
+
+Per comprendere meglio questa scelta, analizziamo il caso specifico di HTTP, un protocollo applicativo che può utilizzare entrambi gli approcci. Nelle versioni moderne, la modalità predefinita è quella con connessioni persistenti.
+________________
+
+
+HTTP con Connessioni Non-Persistenti
+Consideriamo una pagina Web composta da un file HTML di base e 10 immagini JPEG, per un totale di 11 oggetti, tutti ospitati sullo stesso server.
+Esempio di URL del file HTML:
+
+
+http://www.scuola.edu/dipartimento/home.html
+
+
+I passaggi per il recupero degli oggetti sono i seguenti:
+         1. Il client HTTP apre una connessione TCP con www.scuola.edu sulla porta 80 (porta predefinita di HTTP). A questa connessione sono associati un socket sul client e uno sul server.
+
+         2. Il client invia al server un messaggio di richiesta HTTP per l’oggetto /dipartimento/home.html.
+
+         3. Il server riceve la richiesta, recupera il file, lo incapsula in un messaggio di risposta HTTP e lo invia al client.
+
+         4. Il server comunica a TCP di chiudere la connessione, che rimane attiva solo fino alla ricezione dell’acknowledgement da parte del client.
+
+         5. Il client riceve la risposta, ne conferma la ricezione, chiude la connessione TCP ed esamina il file HTML, trovando i riferimenti ai 10 oggetti JPEG.
+
+         6. I passaggi 1–4 vengono ripetuti per ciascuna delle immagini.
+
+In questo caso, ogni connessione TCP gestisce una sola coppia richiesta/risposta. Per scaricare la pagina completa, vengono quindi aperte 11 connessioni TCP.
+Nota: nei browser moderni è possibile configurare un certo grado di parallelismo: in genere vengono aperte 5–10 connessioni TCP contemporanee, ognuna dedicata a una transazione richiesta-risposta.
+Limiti: le connessioni non-persistenti introducono molto overhead, poiché:
+            * ogni nuova connessione richiede il three-way handshake TCP,
+            * sono necessari numerosi RTT (Round Trip Time),
+            * la continua apertura e chiusura delle connessioni aumenta il tempo di caricamento.
+
+➡️ Risultato: le connessioni HTTP non-persistenti sono inefficienti e costose.
+________________
+
+
+HTTP con Connessioni Persistenti
+Con le connessioni persistenti, la logica cambia radicalmente:
+               * dopo aver inviato una risposta, il server mantiene aperta la connessione TCP, così da poter gestire richieste successive dallo stesso client senza doverla riaprirla.
+               * un’intera pagina Web (HTML di base + 10 immagini) può quindi essere trasferita tramite una sola connessione TCP persistente.
+
+Inoltre, le richieste del client possono essere inviate in successione senza attendere la risposta della precedente (tecnica nota come pipelining in HTTP 1/1), riducendo ulteriormente i tempi di caricamento. 
+👉 Esempio:
+                  * senza pipelining: Richiesta 1 → Risposta 1 → Richiesta 2 → Risposta 2
+
+                  * con pipelining: Richiesta 1, Richiesta 2, Richiesta 3 → Risposta 1, Risposta 2, Risposta 3
+
+⚠️ Problema: le risposte devono comunque arrivare nell’ordine delle richieste. Se una risposta impiega più tempo (es. un file pesante), tutte le altre restano in coda.
+
+
+Un’altra tecnica utilizzata in HTTP/2 e HTTP/3 è quella del multiplexing che permette di:
+                     * inviare più richieste in parallelo,
+                     * ricevere le risposte anche in ordine diverso, man mano che il server le elabora.
+Tipicamente, il server chiude la connessione soltanto dopo un certo intervallo di timeout, se non riceve più richieste dal client.
+Per questo motivo, la modalità predefinita nelle versioni moderne di HTTP è quella con connessioni persistenti (spesso con multiplexing, come avviene in HTTP/2 e HTTP/3), poiché molto più efficiente nella gestione delle risorse di rete.
+
+
+http/3 si basa su QUIC, protocollo di liv. di trasporto. Poiché la maggior parte delle connessioni HTTP richiedono TLS, QUIC rende lo scambio delle chiavi di configurazione e dei protocolli supportati parte del processo di handshake iniziale. Quando un client apre una connessione, il pacchetto di risposta include anche i dati necessari per i pacchetti futuri e necessari all'uso della crittografia. Così si semplifica e velocizza quanto prima si faceva con TCP , prevedendo una fase di scambio dei parametri per la cifratura.
+QUIC utilizza UDP come base, che non include però il recupero delle perdite. Puntando ad essere equivalente a TCP, che non ha perdita dati a differenza di UDP, QUIC controlla separatamente ogni flusso e i dati persi vengono ritrasmessi.
+QUIC migliora anche la connessione dei dispositivi mobili nel momento in cui cambiano rete. Quando questo avviene su TCP, inizia un lungo processo in cui ogni connessione esistente si interrompe una alla volta e viene poi ristabilita su richiesta. Per risolvere questo problema, QUIC include un identificatore di connessione al server indipendentemente dalla fonte. Questa funzionalità permette di ristabilire la connessione semplicemente reinviando un pacchetto, contenente sempre questo ID, poiché quello originale sarà ancora valido anche se l'indirizzo IP dell'utente cambia.
+c.f.r: https://it.wikipedia.org/wiki/QUIC
+
+
+
+
+Versione
+	Connessione predefinita
+	Connessioni non persistenti
+	Pipelining
+	Multiplexing
+	HTTP/1.0 (1996)
+	✅ NON Persistente
+	✅ Default
+	❌ Non previsto
+	❌ Non previsto
+	HTTP/1.1 (1997)
+	✅ Persistenti
+	✅ Possibili con Connection: close
+	✅ Previsto (ma poco usato per problemi di Head-of-Line Blocking)
+	❌ Non previsto
+	HTTP/2 (2015)
+	✅ Persistenti
+	❌ Non supportate
+	❌ Non più necessario
+	✅ Supportato → più richieste/risposte in parallelo su una connessione
+	HTTP/3 (2022, su QUIC)
+	✅ Persistenti
+	❌ Non supportate
+	❌ Non necessario
+	✅ Supportato (con vantaggi ulteriori grazie a QUIC: minore latenza, niente Head-of-Line Blocking a livello di trasporto)
+	🔑 Da ricordare
+                     * HTTP/1.0 → ogni oggetto richiede una nuova connessione TCP → overhead molto alto.
+                     * HTTP/1.1 → connessioni persistenti di default → può usare pipelining (ma poco diffuso).
+                     * HTTP/2 → introduce il multiplexing, eliminando i limiti del pipelining.
+                     * HTTP/3 → usa QUIC su UDP → ancora più efficiente e veloce, riduce la latenza.
+Formato dei messaggi HTTP
+Le specifiche HTTP comprendono le definizioni dei formati dei messaggi HTTP. Ci sono due tipi di messaggi HTTP, i messaggi di richiesta e i messaggi di risposta.
+Messaggio HTTP request
+  
+
+La prima riga è la linea di richiesta ed è suddivisa in tre campi:
+                     *  il campo del metodo che può assumere diversi valori, tra cui GET, POST, HEAD, PUT e DELETE.
+                     * il campo URL (es. /unadir/pagina.html)
+                     * il campo versione HTTP (es. HTTP/1.1). 
+Le righe successive sono chiamate righe di intestazione (header).
+Ogni riga è seguita da un ritorno a capo (CR: Carriage Return) e un avanzamento riga (LF: Line Feed). L'ultima riga dell’ header è seguita da un ritorno a capo ed un avanzamento riga supplementare. 
+Il body è vuoto se si specifica come metodo GET, DELETE  o HEAD ma viene utilizzato se si specifica il metodo POST o PUT.
+
+
+
+
+
+
+ESEMPIO:
+Un tipico messaggio HTTP request è il seguente:
+GET /unadir/pagina.html HTTP/1.1
+Host: www.scuola.edu
+Connection: keep-alive
+User-agent: Mozilla/5.0
+Accept: text/html
+Accept-language: fr
+
+L’esempio mostra un messaggio composto di cinque linee di testo ASCI.
+Nella request line è specificato il metodo GET che viene utilizzato quando il browser richiede l’oggetto specificato nel campo URL, nell’esempio /unadir/pagina.html. Il terzo campo specifica che il browser implementa la versione HTTP/1.1.
+Dopo la riga di richiesta, nell'esempio, ci sono le righe dell’header:
+                     1. Host: www.scuola.edu 
+specifica l'host su cui risiede l'oggetto. Si potrebbe pensare che questa riga di intestazione non sia necessaria, in quanto vi è già una connessione TCP in atto verso l'host, ma le informazioni fornite dalla linea di intestazione host sono sfruttate dalla cache Web.
+                     2. Connection: keep-alive
+Per mantenere la connessione persistente 
+                     3. User-agent: Mozilla/5.0 
+specifica il tipo di browser che effettua la richiesta al server, nell’esempio Firefox. Questa linea di intestazione è utile perchè il server potrebbe inviare differenti versioni dello stesso oggetto ai diversi tipi di browser.
+                     4. Accept: text/html 
+specifica il formato del contenuto del body accettabile dal client come risposta dal server che, in questo caso, è un testo HTML.
+                     5. Accept-language: fr 
+indica che, se esiste sul server, l'utente preferisce ricevere una versione francese dell'oggetto, in caso contrario il server deve inviare la sua versione predefinita. L'intestazione Accept-language: è solo una delle intestazioni di negoziazione dei contenuti disponibili in HT
+METODI HTTP
+
+
+Metodo
+	Richiesta del client
+	Risposta del server
+	GET
+	Chiede di ottenere una risorsa identificata da un URL (senza modificarla).
+	Restituisce la rappresentazione della risorsa (es. HTML, JSON, immagine).
+	HEAD
+	Chiede le intestazioni di una risorsa, senza il corpo.
+	Restituisce solo le intestazioni HTTP (dimensione, tipo, data ultima modifica), senza contenuto.
+	POST
+	Invia dati al server (es. da un form, upload di file, creazione di una risorsa).
+	Conferma la ricezione ed elabora i dati: può restituire una nuova risorsa, un ID o un messaggio di stato.
+	PUT
+	Chiede di creare o aggiornare interamente la risorsa con i dati forniti.
+	Conferma la creazione o l’aggiornamento della risorsa (spesso con codice 201 Created o 200 OK).
+	PATCH
+	Chiede di modificare parzialmente una risorsa con i dati inviati.
+	Restituisce conferma dell’aggiornamento parziale (tipicamente 200 OK o 204 No Content).
+	DELETE
+	Richiede l’eliminazione della risorsa indicata dall’URL.
+	Conferma l’avvenuta eliminazione (tipicamente 200 OK o 204 No Content).
+	OPTIONS
+	Chiede quali metodi e operazioni sono disponibili per una risorsa.
+	Restituisce un elenco dei metodi supportati (nell’header Allow:).
+	CONNECT
+	Chiede di stabilire un tunnel TCP/IP verso una risorsa, spesso per HTTPS tramite proxy.
+	Conferma e stabilisce il tunnel (es. risposta 200 Connection Established).
+	TRACE
+	Chiede al server di rimandare indietro la richiesta così come l’ha ricevuta.
+	Restituisce la richiesta ricevuta, utile per debug e diagnostica.
+	
+
+
+
+Quando un utente compila un form su un sito Web e invia i dati, il browser invia una richiesta HTTP al server. Nella maggior parte dei casi, viene utilizzato il metodo POST, perché i valori inseriti nei campi del form vengono inclusi nel body della richiesta. In questo modo i dati non sono visibili nell’URL e, se la connessione utilizza HTTPS, viaggiano cifrati e protetti durante la trasmissione.
+Con un messaggio POST, quindi, l’utente richiede una pagina Web al server, ma il contenuto della pagina può variare in base ai dati forniti nel form. Ad esempio, la pagina risultante potrebbe mostrare risultati di ricerca, conferme di pagamento o altre informazioni personalizzate in base ai valori inviati.
+È comunque possibile inviare i dati del form anche con il metodo GET. In questo caso, i valori vengono aggiunti alla fine dell’URL come query string  diventano visibili all’utente. Ad esempio, se un form con due campi (moneta e pagamento) viene inviato tramite GET con i valori "euro" e "bancomat", l’URL risultante sarà:
+www.unsito.com/cercapagamento?moneta=euro&pagamento=bancomat
+La parte aggiunta all’URL, a partire dal simbolo ?, è detta query string.
+Quando si utilizza il metodo POST, invece, la stessa stringa viene inserita nel body della richiesta HTTP, rendendo i dati invisibili nell’URL.
+Messaggi HTTP Response
+  
+
+La risposta HTTP ha tre sezioni: 
+                     * una riga di stato (HTTP/1.1 200 OK), 
+                     * un header
+                     * un body o corpo del messaggio di risposta. Il corpo del messaggio contiene l'oggetto richiesto
+La riga di stato ha tre campi:
+                     * il campo di versione del protocollo (HTTP/1.1), 
+                     * un codice di stato (200) 
+                     * il corrispondente messaggio di stato (OK).
+
+
+Il seguente è un esempio di messaggio HTTP response:
+HTTP/1.1 200 OK
+Connection: close
+Date: Tue, 09 Aug 2017 15:44:04 GMT
+Server: Apache/2.2.3 (CentOS)
+Last-Modified: Tue, 15 Aug 2015 10:11:03 GMT
+Content-Length: 6821
+Content-Type: text/html
+(… dati …)
+  
+Nell’header dell’esempio si trovano i seguenti campi:
+                     1. Connection: close 
+per dire al client che chiuderà la connessione TCP dopo l'invio del messaggio di risposta.
+                     2. Data: Tue, 09 Aug 2011 15:44:04 GMT 
+indica l'ora e la data in cui la risposta HTTP è stata creata e inviata dal server. Si noti che questo non è il momento in cui l'oggetto è stato creato o modificato l'ultima volta, ma è il momento in cui il server recupera l'oggetto dal suo file system, inserisce l'oggetto nel messaggio di risposta e invia il messaggio di risposta.
+                     3. Server: Apache/2.2.3 (CentOS)
+indica che il messaggio è stato generato da un Web server Apache ed è analoga alla riga di intestazione User-Agent: nel messaggio di richiesta HTTP.
+                     4. Last-Modified: Tue, 15 Aug 2015 10:11:03 GMT
+indica l'ora e la data in cui l'oggetto è stato creato o modificato l'ultima volta. L'intestazione Last-Modified: è fondamentale per la memorizzazione nella cache, sia nel client locale sia nella cache di rete (nota anche come server proxy).
+                     5.  Content-Length: 6821 
+indica il numero di byte dell'oggetto inviato nel body.
+                     6. Content-Type: text/html
+indica il formato dell’oggetto inviato nel body che, in questo caso, è un testo HTML. Si osservi che il tipo dell’oggetto, e quindi l’applicazione che verrà avviata automaticamente per gestirlo, è specificato dal Content-Type: e non dall'estensione del file.
+
+
+Classe di codice
+	codice di stato
+	Descrizione
+	Informativa
+	100–199
+	La richiesta è stata ricevuta e il server sta continuando l’elaborazione. Sono messaggi di informazione. 
+Esempio: 100 Continue.
+	Successo
+	200–299
+	La richiesta è stata ricevuta, compresa e processata correttamente dal server. 
+Esempi: 200 OK, 201 Created.
+	Redirezione
+	300–399
+	Indicano che il client deve compiere ulteriori azioni per completare la richiesta, come seguire un redirect. 
+Esempi: 301 Moved Permanently, 302 Found.
+	Errore client
+	400–499
+	La richiesta non può essere soddisfatta a causa di un errore del client (es. sintassi errata o autorizzazioni mancanti). 
+Esempi: 400 Bad Request, 401 Unauthorized, 404 Not Found.
+	Errore server
+	500–599
+	La richiesta è valida, ma il server ha riscontrato un errore durante l’elaborazione. 
+Esempi: 500 Internal Server Error, 503 Service Unavailable.
+	
+
+ Campi frequenti nell’Header della richiesta HTTP
+Campo
+	Significato
+	Esempio
+	Host
+	Dominio del server di destinazione
+	Host: www.example.com
+	User-Agent
+	Identifica il client
+	User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+	Accept
+	Formati accettati
+	Accept: text/html,application/xhtml+xml
+	Accept-Language
+	Lingua preferita
+	Accept-Language: it-IT,it;q=0.9
+	Accept-Encoding
+	Compressioni accettate
+	Accept-Encoding: gzip, deflate, br
+	Authorization
+	Dati di autenticazione del client presso il server
+	Authorization: Basic dXNlcjpwYXNz
+	Cookie
+	Cookie inviati dal client
+	Cookie: sessionid=abc123
+	Content-Type
+	Tipo di corpo inviato
+	Content-Type: application/json
+	Content-Length
+	Lunghezza del corpo
+	Content-Length: 123
+	Campi frequenti nell’Header della rsposta HTTP
+Campo
+	Significato
+	Esempio
+	Server
+	Identifica il server
+	Server: Apache/2.4.41 (Ubuntu)
+	Set-Cookie
+	Invia cookie al client
+	Set-Cookie: sessionid=xyz789; HttpOnly; Secure
+	Content-Type
+	Tipo di contenuto restituito
+	Content-Type: text/html; charset=UTF-8
+	Content-Length
+	Dimensione del corpo
+	Content-Length: 4523
+	Content-Encoding
+	Codifica usata
+	Content-Encoding: gzip
+	Location
+	Reindirizzamento
+	Location: https://www.example.com/login
+	WWW-Authenticate
+	Metodo di autenticazione richiesto
+	WWW-Authenticate: Basic realm="Access to admin"
+	Retry-After
+	Tempo di attesa prima del retry
+	Retry-After: 120
+	HTTP - Protocollo stateless
+È importante notare che il server invia un file al client che lo ha richiesto senza memorizzare le informazioni relative al client. Se un particolare client richiede lo stesso oggetto due volte a distanza di pochi secondi il server invierà nuovamente l'oggetto, non conservando alcuna memoria di quello che ha fatto in precedenza. Poiché un server HTTP non mantiene le informazioni sui client, si dice che HTTP è un protocollo stateless.
+A volte però è necessario tenere memoria di alcune azioni effettuate. Si pensi a quando si accede con le proprie credenziali in un’area riservata di un sito che consente di fare acquisti online. In genere l’area riservata è dotata di più pagine e non si può chiederse all’utente di autenticarsi ogni volta che cambia pagina. E’ necessario tenere traccia dell’avvenuta autenticazione.
+Un sito riesce a “ricordare” che hai effettuato l’accesso usando un meccanismo che combina sessioni e cookie:
+________________
+1. Login
+Quando inserisci il tuo username e password:
+                     1. Il sito verifica che le credenziali siano corrette sul server.
+                     2. Se sono corrette, il server crea una sessione per te.
+2. Sessione
+Una sessione è un record sul server che contiene informazioni su di te, ad esempio:
+                     * ID utente
+
+                     * Timestamp dell’accesso
+
+                     * Permessi e ruolo
+
+Il server associa un identificatore unico a questa sessione, chiamato spesso session ID.
+________________
+
+
+3. Cookie
+Per far sapere al sito, ogni volta che torni, chi sei:
+                        1. Il server invia  il session ID al tuo browser mediante un cookie nell’header. Il browser memorizza nel tuo PC questo cookie.
+                        2. Ogni volta che visiti di nuovo il sito, il browser invia automaticamente il cookie.
+
+Il server riceve il session ID dal cookie, lo confronta con le sue sessioni attive e capisce che sei già autenticato.
+________________
+
+
+4. “Ricordami”
+Se scegli l’opzione “Ricordami”:
+                           * Il sito può creare un token permanente salvato come cookie sul tuo browser.
+                           * Anche dopo aver chiuso il browser, il token rimane valido fino alla scadenza.
+                           * Quando torni, il sito usa il token per creare automaticamente una nuova sessione senza chiederti di fare login.
+
+________________
+
+
+In sintesi: il browser conserva un piccolo promemoria (cookie/token) e il server lo riconosce per sapere che sei tu.
+Esempio con il token:
+Dopo che l’utente ha effettuato il login, il server verifica l’account e quindi genera un token che restituisce al client ad esempio mediante un cookie 
+HTTP/1.1 200 OK
+Set-Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjM0NSIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTY5ODAwMDAwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c; 
+HttpOnly;
+Secure; 
+Path=/; 
+Max-Age=3600
+Content-Type: application/json
+{
+  "message": "Login avvenuto con successo"
+}
+
+
+Il client memorizza il token e la prossima volta che invia una richiesta al sito, questa conterrà il token nell’header:
+GET /profilo HTTP/1.1
+Host: esempio.com
+Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjM0NSIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTY5ODAwMDAwMH0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
+
+
+
+Il GDPR (Regolamento Generale sulla Protezione dei Dati, Regolamento UE 2016/679) è intervenuto sulla gestione dei dati personali, compresi quelli raccolti tramite cookie, in particolare quelli che possono identificare direttamente o indirettamente una persona (ad esempio cookie di profilazione).
+Ecco i punti chiave:
+________________
+
+
+1️⃣ Quando è entrato in vigore
+                              * Il GDPR è stato approvato nel 2016 ed è entrato in vigore il 25 maggio 2018.
+                              * Da quella data, tutte le aziende che trattano dati di cittadini UE devono rispettarlo, e vale anche per i siti web.
+________________
+
+
+2️⃣ Cosa riguarda in merito ai cookie
+                              * Cookie strettamente necessari (per esempio per login o carrello) non richiedono consenso.
+
+                              * Cookie non necessari, come quelli di profilazione o pubblicità, richiedono:
+
+                                 1. Consenso esplicito e informato dell’utente prima dell’installazione.
+                                 2. Possibilità di revocare il consenso in qualsiasi momento.
+                                 3. Trasparenza su quali dati vengono raccolti e per quale scopo.
+
+________________
+
+
+3️⃣ Interazione con la direttiva ePrivacy
+                                    * Il GDPR si integra con la direttiva ePrivacy (chiamata anche “Cookie Law”), che regolamenta specificamente i cookie.
+
+                                    * In pratica:
+
+                                       * Il sito deve informare l’utente (banner o popup) sui cookie non necessari.
+                                       * Deve chiedere consenso attivo (non pre-selezionato).
+
+________________
+
+
+4️⃣ Conseguenze pratiche
+                                          * Prima del GDPR, molti siti mostravano solo un banner informativo.
+                                          * Dopo il GDPR, è obbligatorio il consenso esplicito per cookie di profilazione e pubblicità.
+                                          * Devono anche esserci strumenti per revocare o modificare le preferenze sui cookie.
+
+________________
+
+
+  Architettura di un’applicazione Web a tre livelli 
+📌 I tre livelli
+1. Livello di Interfaccia (Presentation Layer)
+                                             * È lo strato visibile all’utente (UI).
+                                             * Gestisce l’interazione con l’utente: input, output, visualizzazione dei dati.
+                                             * Può essere un sito web, un’app desktop o mobile.
+                                             * Tecnologie tipiche: HTML, CSS, JavaScript, Angular, React, Flutter.
+
+👉 Esempio: un form web dove l’utente inserisce le credenziali di login.
+________________
+
+
+2. Livello di Logica (Business Logic Layer)
+                                                * Contiene le regole di business e la logica applicativa.
+                                                * Riceve i dati dall’interfaccia, li elabora e decide come devono essere gestiti.
+                                                * Garantisce che i dati rispettino le regole dell’applicazione.
+                                                * Tecnologie tipiche: Java, C#, Python, Node.js, PHP.
+
+👉 Esempio: il modulo che verifica se la password inserita è corretta e decide se l’utente può accedere.
+________________
+
+
+3. Livello di Accesso ai Dati (Data Access Layer)
+                                                   * Responsabile della comunicazione con il database o altre fonti di dati.
+                                                   * Si occupa di lettura, scrittura, aggiornamento e cancellazione dei dati.
+                                                   * Nasconde la complessità del database al livello di logica.
+                                                   * Tecnologie tipiche: SQL, ORM (Hibernate, Entity Framework), JDBC, MongoDB driver.
+
+👉 Esempio: una query al database che recupera le credenziali salvate.
