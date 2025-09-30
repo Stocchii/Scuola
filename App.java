@@ -25,10 +25,12 @@ public class App {
                 System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
             }
             Gson gson = new Gson();
-            Pizza[] pizze = gson.fromJson(response.body().toString(), Pizza[].class);
+            Pizza[] pizze = gson.fromJson(response.body().string(), Pizza[].class);
             for(Pizza pizza : pizze) {
                 System.out.println(pizza.toString());
         }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
